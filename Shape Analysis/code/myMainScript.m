@@ -1,0 +1,295 @@
+%% Question Number 1.
+
+clear all;
+clc;
+
+load('../data/ellipses2D.mat');
+dim = 2;
+
+% Plot of Given Data.
+figure(1);
+PlotMyData(pointSets, numOfPoints, numOfPointSets);
+title('Plot of the initial pointsets for Epillpse2D DataSet');
+
+% 1. Translation Part => Set the Centroid of the Data Points to the Origin.
+X = setCentroidToOrigin(pointSets, numOfPoints, numOfPointSets, dim);
+
+% 2. Scaling Part => Normalize the Data such that all pointsets have same size.
+X = normalizeData(X,numOfPoints*dim);
+
+% 3. Rotation Part => Take a refrance PointSet and allign all other PointSets
+% to this refrance PointSet. Repeat this 10 times for optimization.
+refranceSet = reshape(X(:,1),dim,numOfPoints);
+
+for iter = 1:10
+    % sqrt(sum(sum(refranceSet .^ 2)))
+    Xrotated = rotateToAlign(dim,numOfPoints,numOfPointSets,X,refranceSet);
+    % Optimal Mean Shape
+    m = mean(Xrotated,3);
+    refranceSet = m ./ sqrt(sum(sum(m .^ 2)));
+end
+
+%Plotting of Alligned Data with Mean
+
+MeanShape = mean(Xrotated,3);
+MeanShape = MeanShape ./ sqrt(sum(sum(MeanShape .^ 2)));
+figure(2);
+plot(MeanShape(1,:), MeanShape(2,:),'linewidth',2);
+legend('Mean Shape');
+hold on;
+PlotMyData(Xrotated, numOfPoints, numOfPointSets);
+title('Plot of the Alligned pointsets for Epillpse2D DataSet');
+
+
+% Computing the Mean Shape and the Modes of Variations
+Xrotated1 = reshape(Xrotated,numOfPoints*2,numOfPointSets);
+C = cov(Xrotated1');
+[V,D] = svd(C);
+
+% Plotting of Sorted Eigen Values.
+figure(3);
+plot(1:dim*numOfPoints, diag(D));
+legend('Sorted Eigen Values');
+title('Eigen Values for Ellipse2D Dataset');
+
+figure(4);
+hold on;
+p1 = MeanShape - 2 * sqrt(D(1,1)) .* reshape(V(:,1),dim,numOfPoints);
+p1 = p1 ./ sqrt(sum(sum(p1 .^ 2)));
+p2 = MeanShape + 2 * sqrt(D(1,1)) .* reshape(V(:,1),dim,numOfPoints);
+p2 = p2 ./ sqrt(sum(sum(p2 .^ 2)));
+s1 = scatter(p1(1,:),p1(2,:),30,'filled','b','DisplayName', '-2 Standerd Deviations');
+s2 = scatter(p2(1,:),p2(2,:),30,'filled','r','DisplayName', '+2 Standerd Deviations');
+plot(MeanShape(1,:), MeanShape(2,:),'linewidth',2);
+%legend('-2 Standerd Deviations','+2 Standerd Deviations','Mean Shape');
+PlotMyData(Xrotated, numOfPoints, numOfPointSets);
+title('Alligned Dataset for Ellipse2D with Mean Shape and 1st Mode of variation');
+figure(5);
+subplot(3,3,2);
+plot(MeanShape(1,:), MeanShape(2,:));
+title('Mean Shape');
+subplot(3,3,1);
+plot(p1(1,:), p1(2,:));
+title('-2 S.D. First Mode of Varitation');
+subplot(3,3,3);
+plot(p2(1,:), p2(2,:));
+title('+2 S.D. First Mode of Varitation');
+p1 = MeanShape - 2 * sqrt(D(2,2)) .* reshape(V(:,2),dim,numOfPoints);
+p1 = p1 ./ norm(p1);
+p2 = MeanShape + 2 * sqrt(D(2,2)) .* reshape(V(:,2),dim,numOfPoints);
+p2 = p2 ./ norm(p2);
+subplot(3,3,5);
+plot(MeanShape(1,:), MeanShape(2,:));
+title('Mean Shape');
+subplot(3,3,4);
+plot(p1(1,:), p1(2,:));
+title('-2 S.D. Second Mode of Varitation');
+subplot(3,3,6);
+plot(p2(1,:), p2(2,:));
+title('+2 S.D. Second Mode of Varitation');
+p1 = MeanShape - 2 * sqrt(D(3,3)) .* reshape(V(:,3),dim,numOfPoints);
+p1 = p1 ./ norm(p1);
+p2 = MeanShape + 2 * sqrt(D(3,3)) .* reshape(V(:,3),dim,numOfPoints);
+p2 = p2 ./ norm(p2);
+subplot(3,3,8);
+plot(MeanShape(1,:), MeanShape(2,:));
+title('Mean Shape');
+subplot(3,3,7);
+plot(p1(1,:), p1(2,:));
+title('-2 S.D. Third Mode of Varitation');
+subplot(3,3,9);
+plot(p2(1,:), p2(2,:));
+title('+2 S.D. Third Mode of Varitation');
+hold off;
+
+%% Question Number 2.
+
+clear all;
+clc;
+
+load('../data/hands2D.mat');
+dim = 2;
+numOfPoints = 56;
+numOfPointSets = 40;
+pointSets = shapes;
+
+% Plot of Given Data.
+figure(6);
+PlotMyData(pointSets, numOfPoints, numOfPointSets);
+title('Plot of the initial pointsets for Hand2D DataSet');
+
+% 1. Translation Part => Set the Centroid of the Data Points to the Origin.
+X = setCentroidToOrigin(pointSets, numOfPoints, numOfPointSets, dim);
+
+% 2. Scaling Part => Normalize the Data such that all pointsets have same size.
+X = normalizeData(X,numOfPoints*dim);
+
+% 3. Rotation Part => Take a refrance PointSet and allign all other PointSets
+% to this refrance PointSet. Repeat this 10 times for optimization.
+refranceSet = reshape(X(:,1),dim,numOfPoints);
+
+for iter = 1:10
+    % sqrt(sum(sum(refranceSet .^ 2)))
+    Xrotated = rotateToAlign(dim,numOfPoints,numOfPointSets,X,refranceSet);
+    % Optimal Mean Shape
+    m = mean(Xrotated,3);
+    refranceSet = m ./ sqrt(sum(sum(m .^ 2)));
+end
+
+%Plotting of Alligned Data with Mean
+
+MeanShape = mean(Xrotated,3);
+MeanShape = MeanShape ./ sqrt(sum(sum(MeanShape .^ 2)));
+figure(7);
+plot(MeanShape(1,:), MeanShape(2,:),'linewidth',2);
+hold on;
+PlotMyData(Xrotated, numOfPoints, numOfPointSets);
+title('Plot of the Alligned pointsets for Hand2D DataSet with Mean Shape');
+
+
+% Computing the Mean Shape and the Modes of Variations
+Xrotated1 = reshape(Xrotated,numOfPoints*2,numOfPointSets);
+C = cov(Xrotated1');
+[V,D] = svd(C);
+
+% Plotting of Sorted Eigen Values.
+figure(8);
+plot(1:dim*numOfPoints, diag(D));
+title('Eigen Values for Hands2D dataset');
+figure(9);
+hold on;
+p1 = MeanShape - 2 * sqrt(D(1,1)) .* reshape(V(:,1),dim,numOfPoints);
+p1 = p1 ./ sqrt(sum(sum(p1 .^ 2)));
+p2 = MeanShape + 2 * sqrt(D(1,1)) .* reshape(V(:,1),dim,numOfPoints);
+p2 = p2 ./ sqrt(sum(sum(p2 .^ 2)));
+scatter(p1(1,:),p1(2,:),30,'filled','r');hold on;
+legend('-2 S.D. First Mode of Varitation');
+scatter(p2(1,:),p2(2,:),30,'filled','b');hold on;
+legend('+2 S.D. First Mode of Varitation');
+plot(MeanShape(1,:), MeanShape(2,:),'linewidth',2);
+title('Mean Shape');
+PlotMyData(Xrotated, numOfPoints, numOfPointSets);
+figure(10);
+subplot(3,3,2);
+plot(MeanShape(1,:), MeanShape(2,:));
+title('Mean Shape');
+subplot(3,3,1);
+plot(p1(1,:), p1(2,:));
+title('-2 S.D. First Mode of Varitation');
+subplot(3,3,3);
+plot(p2(1,:), p2(2,:));
+title('+2 S.D. First Mode of Varitation');
+p1 = MeanShape - 2 * sqrt(D(2,2)) .* reshape(V(:,2),dim,numOfPoints);
+p1 = p1 ./ norm(p1);
+p2 = MeanShape + 2 * sqrt(D(2,2)) .* reshape(V(:,2),dim,numOfPoints);
+p2 = p2 ./ norm(p2);
+subplot(3,3,5);
+plot(MeanShape(1,:), MeanShape(2,:));
+title('Mean Shape');
+subplot(3,3,4);
+plot(p1(1,:), p1(2,:));
+title('-2 S.D. Second Mode of Varitation');
+subplot(3,3,6);
+plot(p2(1,:), p2(2,:));
+title('+2 S.D. Second Mode of Varitation');
+p1 = MeanShape - 2 * sqrt(D(3,3)) .* reshape(V(:,3),dim,numOfPoints);
+p1 = p1 ./ norm(p1);
+p2 = MeanShape + 2 * sqrt(D(3,3)) .* reshape(V(:,3),dim,numOfPoints);
+p2 = p2 ./ norm(p2);
+subplot(3,3,8);
+plot(MeanShape(1,:), MeanShape(2,:));
+title('Mean Shape');
+subplot(3,3,7);
+plot(p1(1,:), p1(2,:));
+title('-2 S.D. Third Mode of Varitation');
+subplot(3,3,9);
+plot(p2(1,:), p2(2,:));
+title('+2 S.D. Third Mode of Varitation');
+hold off;
+
+%% Question Number 3.
+
+clear all;
+clc;
+
+load('../data/bone3D.mat');
+numOfPoints = 252;
+numOfPointSets = 30;
+dim = 3;
+pointSets = shapesTotal;
+
+% Plot of Given Data.
+figure(11);
+PlotMyData(pointSets, numOfPoints, numOfPointSets, TriangleIndex);
+title('Plot of the initial pointsets for Bone3D DataSet');
+
+% 1. Translation Part => Set the Centroid of the Data Points to the Origin.
+X = setCentroidToOrigin(pointSets, numOfPoints, numOfPointSets, dim);
+
+% 2. Scaling Part => Normalize the Data such that all pointsets have same size.
+X = normalizeData(X,numOfPoints*dim);
+
+% 3. Rotation Part => Take a refrance PointSet and allign all other PointSets
+% to this refrance PointSet. Repeat this 10 times for optimization.
+refranceSet = reshape(X(:,1),dim,numOfPoints);
+
+for iter = 1:10
+    % sqrt(sum(sum(refranceSet .^ 2)))
+    Xrotated = rotateToAlign(dim,numOfPoints,numOfPointSets,X,refranceSet);
+    % Optimal Mean Shape
+    m = mean(Xrotated,3);
+    refranceSet = m ./ sqrt(sum(sum(m .^ 2)));
+end
+
+%Plotting of Alligned Data with Mean
+
+MeanShape = mean(Xrotated,3);
+MeanShape = MeanShape ./ sqrt(sum(sum(MeanShape .^ 2)));
+figure(12);
+patch('Faces',TriangleIndex,'Vertices',MeanShape','FaceVertexCData',(1:numOfPoints)','FaceColor','flat');
+view(3);
+axis vis3d
+hold on;
+PlotMyData(Xrotated, numOfPoints, numOfPointSets, TriangleIndex);
+title('Plot of the Alligned pointsets for Bone3D DataSet');
+
+
+% Computing the Mean Shape and the Modes of Variations
+Xrotated1 = reshape(Xrotated,numOfPoints*dim,numOfPointSets);
+C = cov(Xrotated1');
+[V,D] = svd(C);
+
+% Plotting of Sorted Eigen Values.
+figure(13);
+plot(1:dim*numOfPoints, diag(D));
+title('Eigen Values for Bone3D dataset');
+
+figure(14);
+hold on;
+p1 = MeanShape - 2 * sqrt(D(1,1)) .* reshape(V(:,1),dim,numOfPoints);
+p1 = p1 ./ sqrt(sum(sum(p1 .^ 2)));
+p2 = MeanShape + 2 * sqrt(D(1,1)) .* reshape(V(:,1),dim,numOfPoints);
+p2 = p2 ./ sqrt(sum(sum(p2 .^ 2)));
+scatter3(p1(1,:),p1(2,:),p1(3,:),30,'filled','r');
+scatter3(p2(1,:),p2(2,:),p2(3,:),30,'filled','b');
+patch('Faces',TriangleIndex,'Vertices',MeanShape','FaceVertexCData',(1:numOfPoints)','FaceColor','flat');
+view(3);
+axis vis3d
+PlotMyData(Xrotated, numOfPoints, numOfPointSets, TriangleIndex);
+title('Plot of the Alligned pointsets for Bone3D DataSet with mean First Mode of Variation');
+figure(15);
+subplot(1,3,2);
+patch('Faces',TriangleIndex,'Vertices',MeanShape','FaceVertexCData',(1:numOfPoints)','FaceColor','flat');
+title('Mean Shape');
+view(3);
+axis vis3d
+subplot(1,3,1);
+patch('Faces',TriangleIndex,'Vertices',p1','FaceVertexCData',(1:numOfPoints)','FaceColor','flat');
+title('-2 S.D. First Mode of Varitation');
+view(3);
+axis vis3d
+subplot(1,3,3);
+patch('Faces',TriangleIndex,'Vertices',p2','FaceVertexCData',(1:numOfPoints)','FaceColor','flat');
+title('+2 S.D. First Mode of Varitation');
+view(3);
+axis vis3d
